@@ -79,6 +79,7 @@ struct DataPageHeader {
   2: required Encoding encoding
 
   /** TODO: should this contain min/max for this page? **/
+  // Julien: at some point we will want this, it can also go in an index page
 }
 
 struct IndexPageHeader {
@@ -87,6 +88,9 @@ struct IndexPageHeader {
 
 struct PageHeader {
   1: required PageType type
+
+// Julien: missing
+// 1.5: required CompressionCodec compression_codec
 
   /** Uncompressed page size in bytes **/
   2: required i32 uncompressed_page_size
@@ -98,6 +102,7 @@ struct PageHeader {
    *  if only a few pages needs to be read 
    **/
   4: required i32 crc
+  // Julien: I think Hadoop is doing that at the block level.
 
   5: optional DataPageHeader data_page;
   6: optional IndexPageHeader index_page;
@@ -120,6 +125,7 @@ struct ColumnMetaData {
 
   /** Set of all encodings used for this column **/
   2: required list<Encoding> encodings
+  // Julien: what is the purpose of this? Validate we can read the pages?
 
   /** Path in schema **/
   3: required list<string> path_in_schema
@@ -130,7 +136,9 @@ struct ColumnMetaData {
   /** Number of values in this column **/
   5: required i64 num_values
 
-  /** Max defintion and repetition levels **/
+  /** Max definition and repetition levels **/
+  // we don't need those as they are derived from the schema
+  // also they are not sufficient to reconstruct the data as we need to know what fields on the path_in_schema are repeated/optional/required 
   6: required i32 max_definition_level
   7: required i32 max_repetition_level
 
@@ -178,6 +186,7 @@ struct FileMetaData {
 
   /** Number of cols in the schema for this file **/
   3: required i32 num_cols
+  // Julien: we need the schema instead. We need to know which fields are optional/required/repeated 
 
   /** Row groups in this file **/
   4: required list<RowGroup> row_groups
@@ -187,4 +196,6 @@ struct FileMetaData {
 
   /** 32bit crc for the file metadata **/
   6: optional i32 meta_data_crc
+  // Julien: As we are using Thrift, this is not necessary.
+  // It would need to be separate from the metadata
 }
