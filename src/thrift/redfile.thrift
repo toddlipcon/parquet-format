@@ -20,7 +20,7 @@
  * File format description for the redfile file format
  */
 namespace cpp redfile
-namespace java com.apache.redfile
+namespace java redfile
 
 /**
  * Types supported by redfile.  These types are intended to be for the storage
