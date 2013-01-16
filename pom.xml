@@ -9,7 +9,7 @@
 
   <name>redfile metadata</name>
   <url>http://github.com/redfile</url>
-  <description>A Thrift generator for Scala</description>
+  <description>Redfile is a columnar storage format that supports nested data</description>
 
   <scm>
     <connection>scm:git:git@github.com:redfile/redfile.git</connection>
