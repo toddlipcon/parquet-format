@@ -78,8 +78,8 @@ struct DataPageHeader {
   /** Encoding used for this data page **/
   2: required Encoding encoding
 
-  /** TODO: should this contain min/max for this page? **/
-  // Julien: at some point we will want this, it can also go in an index page
+  /** TODO: should this contain min/max for this page? It could also be stored in an index page **/
+
 }
 
 struct IndexPageHeader {
@@ -89,23 +89,22 @@ struct IndexPageHeader {
 struct PageHeader {
   1: required PageType type
 
-// Julien: missing
-// 1.5: required CompressionCodec compression_codec
+  /** The compression codec used to compress the page **/
+  2: required CompressionCodec compression_codec
 
   /** Uncompressed page size in bytes **/
-  2: required i32 uncompressed_page_size
+  3: required i32 uncompressed_page_size
   
   /** Compressed page size in bytes **/
-  3: required i32 compressed_page_size
+  4: required i32 compressed_page_size
 
   /** 32bit crc for the data below. This allows for disabling checksumming in HDFS
    *  if only a few pages needs to be read 
    **/
-  4: required i32 crc
-  // Julien: I think Hadoop is doing that at the block level.
-
-  5: optional DataPageHeader data_page;
-  6: optional IndexPageHeader index_page;
+  5: optional i32 crc
+  
+  6: optional DataPageHeader data_page;
+  7: optional IndexPageHeader index_page;
 }
 
 /** 
@@ -123,9 +122,8 @@ struct ColumnMetaData {
   /** Type of this column **/
   1: required Type type
 
-  /** Set of all encodings used for this column **/
+  /** Set of all encodings used for this column. The purpose is to validate whether we can decode those pages. **/
   2: required list<Encoding> encodings
-  // Julien: what is the purpose of this? Validate we can read the pages?
 
   /** Path in schema **/
   3: required list<string> path_in_schema
@@ -194,8 +192,4 @@ struct FileMetaData {
   /** Optional key/value metadata **/
   5: optional list<KeyValue> key_value_metadata
 
-  /** 32bit crc for the file metadata **/
-  6: optional i32 meta_data_crc
-  // Julien: As we are using Thrift, this is not necessary.
-  // It would need to be separate from the metadata
 }
