@@ -61,16 +61,37 @@ Metadata is written after the data to allow for single pass writing.
 Readers are expected to first read the file metadata to find all the column 
 chunks they are interested in.  The columns chunks should then be read sequentially.
 
+## Metadata
+There are three types of metadata: file metadata, column (chunk) metadata and page
+header metadata.  These are all serialized using thrift.
+    TODO: Agree on thrift serialization.  Compact vs binary?
+
 ## Nested Encoding
 To encode nested columns, redfile uses the dremel encoding with definition and 
-repetition levels.
-    TODO
+repetition levels.  Definition levels specify how many optional fields in the 
+path for the column are defined.  Repetition levels specify at what repeated field
+in the path has the value repeated.  The max definition and repetition levels can
+be computed from the schema (i.e. how much nesting is there).  This defines the
+maximum number of bits required to store the levels (levels are defined for all
+values in the column).  The encoding packs the bits as tightly as possible, 
+rounding up to the nearest byte.  For example, if the max repetition level was 3
+(2 bits) and the max definition level as 4 (3 bits), to encode 30 values, we would
+have 30 * 3 = 120 bits = 15 bytes for the definition values followed by 30 * 2 = 60
+bits = 8 bytes for the repetition levels.  These level bytes are encoded back to back,
+right after the data page header.  The values data is stored immediately after. 
+
+## Nulls
+Nullity is encoded in the definition levels.  For example, in a non-nested schema, 
+there is 1 bit to encode the nullity for each value in a data page.  A value of 1 
+indicates a NULL.  For NULLs, the NULL itself is not encoded in the data following 
+the definition and repetition bits.  E.g. a flat schema with a data page consisting 
+of only 1000 NULLs, would have 1000 NULL bits (125 bytes) set and nothing else. 
 
 ## Column chunks
-Column chunks are composed of pages written back to back.  The pages same a fixed 
+Column chunks are composed of pages written back to back.  The pages share a common 
 header and readers can skip over page they are not interested in.  The data for the 
 page follows the header and can be compressed and/or encoded.  The compression and 
-encoding is specified in the metadata.
+encoding is specified in the page metadata.
 
 ## Checksumming
 Data pages can be individually checksummed.  This allows disabling of checksums at the 
