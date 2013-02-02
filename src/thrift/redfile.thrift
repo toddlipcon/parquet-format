@@ -89,22 +89,19 @@ struct IndexPageHeader {
 struct PageHeader {
   1: required PageType type
 
-  /** The compression codec used to compress the page **/
-  2: required CompressionCodec compression_codec
-
   /** Uncompressed page size in bytes **/
-  3: required i32 uncompressed_page_size
-  
+  2: required i32 uncompressed_page_size
+
   /** Compressed page size in bytes **/
-  4: required i32 compressed_page_size
+  3: required i32 compressed_page_size
 
   /** 32bit crc for the data below. This allows for disabling checksumming in HDFS
    *  if only a few pages needs to be read 
    **/
-  5: optional i32 crc
-  
-  6: optional DataPageHeader data_page;
-  7: optional IndexPageHeader index_page;
+  4: optional i32 crc
+
+  5: optional DataPageHeader data_page;
+  6: optional IndexPageHeader index_page;
 }
 
 /** 
@@ -133,12 +130,12 @@ struct ColumnMetaData {
 
   /** Number of values in this column **/
   5: required i64 num_values
+  
+  /** total of uncompressed pages size in bytes **/
+  6: required i64 total_uncompressed_size
 
-  /** Max definition and repetition levels **/
-  // we don't need those as they are derived from the schema
-  // also they are not sufficient to reconstruct the data as we need to know what fields on the path_in_schema are repeated/optional/required 
-  6: required i32 max_definition_level
-  7: required i32 max_repetition_level
+  /** total of compressed pages size in bytes **/
+  7: required i64 total_compressed_size
 
   /** Byte offset from beginning of file to first data page **/
   8: required i64 data_page_offset
@@ -170,6 +167,8 @@ struct RowGroup {
   1: required list<ColumnChunk> columns
   /** Total byte size of all the uncompressed column data in this row group **/
   2: required i64 total_byte_size
+  /** Number of rows in this row group **/
+  3: required i64 num_rows
 }
 
 /**
@@ -182,9 +181,8 @@ struct FileMetaData {
   /** Number of rows in this file **/
   2: required i64 num_rows
 
-  /** Number of cols in the schema for this file **/
-  3: required i32 num_cols
-  // Julien: we need the schema instead. We need to know which fields are optional/required/repeated 
+  /** schema for this file **/
+  3: required string schema 
 
   /** Row groups in this file **/
   4: required list<RowGroup> row_groups
