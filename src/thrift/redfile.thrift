@@ -130,7 +130,7 @@ struct ColumnMetaData {
 
   /** Number of values in this column **/
   5: required i64 num_values
-  
+
   /** total of uncompressed pages size in bytes **/
   6: required i64 total_uncompressed_size
 
@@ -182,7 +182,7 @@ struct FileMetaData {
   2: required i64 num_rows
 
   /** schema for this file **/
-  3: required string schema 
+  3: required string schema
 
   /** Row groups in this file **/
   4: required list<RowGroup> row_groups
