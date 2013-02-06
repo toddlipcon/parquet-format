@@ -41,11 +41,15 @@ enum Type {
 /** 
  * Representation of Schemas
  */
-enum SchemaFieldType {
-  /** This field is required (can not be null) **/
+enum FieldRepetitionType {
+  /** This field is required (can not be null) and each record
+   * has exactly 1 value 
+   */
   REQUIRED = 0;
 
-  /** The field is optional (can be null) **/
+  /** The field is optional (can be null) and each record has
+   * 0 or 1 values
+   **/
   OPTIONAL = 1;
 
   /** The field is repeated and can contain 0 or more values **/
@@ -57,18 +61,18 @@ enum SchemaFieldType {
  */
 struct SchemaElement {
   /** Data type for this field. e.g. int32 **/
-  1: required Type type;
+  1: optional Type type;
 
-  2: required SchemaFieldType field_type;
+  2: optional FieldRepetitionType field_type;
 
   /** Name of the field in the schema **/
   3: required string name;
 
-  /** Nested fields.  Since thrift does not support nested fields,
-   * the nesting if flattened to a single list.  These indices
-   * are used to construct the nested relationship
+  /** For nested fields, this will be the index into the file metadata
+   * list (flattened) schema elements.  For root elements, this will be
+   * unset.
    **/
-  4: required list<i32> children_indices;
+  4: optional i32 parent_index;
 }
 
 /**
@@ -212,9 +216,7 @@ struct FileMetaData {
   /** Version of this file **/
   1: required i32 version
 
-  /** Schema for this file.  The first element represents the root of schema;
-   * there is always a single root
-   */
+  /** Schema for this file. **/
   2: required list<SchemaElement> schema;
 
   /** Number of rows in this file **/
