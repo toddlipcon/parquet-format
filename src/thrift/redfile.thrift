@@ -38,6 +38,43 @@ enum Type {
   BYTE_ARRAY = 6;
 }
 
+/** 
+ * Representation of Schemas
+ */
+enum FieldRepetitionType {
+  /** This field is required (can not be null) and each record
+   * has exactly 1 value 
+   */
+  REQUIRED = 0;
+
+  /** The field is optional (can be null) and each record has
+   * 0 or 1 values
+   **/
+  OPTIONAL = 1;
+
+  /** The field is repeated and can contain 0 or more values **/
+  REPEATED = 2;
+}
+
+/**
+ * Represents a element inside a schema definition.  
+ */
+struct SchemaElement {
+  /** Data type for this field. e.g. int32 **/
+  1: optional Type type;
+
+  2: optional FieldRepetitionType field_type;
+
+  /** Name of the field in the schema **/
+  3: required string name;
+
+  /** For nested fields, this will be the index into the file metadata
+   * list (flattened) schema elements.  For root elements, this will be
+   * unset.
+   **/
+  4: optional i32 parent_index;
+}
+
 /**
  * Encodings supported by redfile.  Not all encodings are valid for all types.
  */
@@ -119,7 +156,8 @@ struct ColumnMetaData {
   /** Type of this column **/
   1: required Type type
 
-  /** Set of all encodings used for this column. The purpose is to validate whether we can decode those pages. **/
+  /** Set of all encodings used for this column. The purpose is to validate 
+   * whether we can decode those pages. **/
   2: required list<Encoding> encodings
 
   /** Path in schema **/
@@ -178,16 +216,15 @@ struct FileMetaData {
   /** Version of this file **/
   1: required i32 version
 
-  /** Number of rows in this file **/
-  2: required i64 num_rows
+  /** Schema for this file. **/
+  2: required list<SchemaElement> schema;
 
-  /** schema for this file **/
-  3: required string schema
+  /** Number of rows in this file **/
+  3: required i64 num_rows
 
   /** Row groups in this file **/
   4: required list<RowGroup> row_groups
 
   /** Optional key/value metadata **/
   5: optional list<KeyValue> key_value_metadata
-
 }
