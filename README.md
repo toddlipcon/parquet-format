@@ -92,13 +92,13 @@ For the definition levels, the values are encoded using run length encoding.
 The run length encoding is serialized as follows:
  - let max be the maximum definition level (determined by the schema)
  - let w be the width in bits required to encode a definition level value. w = ceil(log2(max + 1))
-If the value is repeated we store:
- - 1 as one bit
- - the value encoded in w bits
- - the repetition count as an unsigned var int. (see ULEB128: http://en.wikipedia.org/wiki/Variable-length_quantity)
-If the value is not repeated (or not repeated enough so that the above scheme would be more compact)
- - 0 as one bit
- - the value encoded in w bits
+ - If the value is repeated we store:
+  - 1 as one bit
+  - the value encoded in w bits
+  - the repetition count as an unsigned var int. (see ULEB128: http://en.wikipedia.org/wiki/Variable-length_quantity)
+ - If the value is not repeated (or not repeated enough so that the above scheme would be more compact)
+  - 0 as one bit
+  - the value encoded in w bits
 
 For repetition levels, the levels are bit packed as tightly as possible, 
 rounding up to the nearest byte.  For example, if the max repetition level was 3
