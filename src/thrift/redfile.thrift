@@ -38,6 +38,21 @@ enum Type {
   BYTE_ARRAY = 6;
 }
 
+/**
+ * To help with conversion in between various type systems
+ * list of common types which can be encoded in the simpler model we use internally
+ */
+enum ConvertedType {
+  /** a BYTE_ARRAY actually contains UTF8 encoded chars */
+  UTF8 = 0;
+  /** a map is converted as an optional field containing a repeated key/value pair */
+  MAP = 1;
+  /** a key/value pair is converted into a group of two fields */
+  MAP_KEY_VALUE = 2;
+  /** a list is converted into an optional field containing a repeated field for its values */
+  LIST = 3;
+}
+
 /** 
  * Representation of Schemas
  */
@@ -68,11 +83,16 @@ struct SchemaElement {
   /** Name of the field in the schema **/
   3: required string name;
 
-  /** For nested fields, this will be the index into the file metadata
-   * list (flattened) schema elements.  For root elements, this will be
-   * unset.
+  /** Nested fields.  Since thrift does not support nested fields,
+   * the nesting if flattened to a single list.  These indices
+   * are used to construct the nested relationship
    **/
-  4: optional i32 parent_index;
+  4: optional list<i32> children_indices;
+
+  /** When the schema is the result of a conversion from another model
+   * Used to record the original type to help with cross conversion
+   **/
+  5: optional ConvertedType converted_type;
 }
 
 /**
