@@ -72,20 +72,25 @@ enum FieldRepetitionType {
 }
 
 /**
- * Represents a element inside a schema definition.  
+ * Represents a element inside a schema definition.
+ * if it is a group (inner node) then type is undefined and children_indices is defined
+ * if it is a primitive type (leaf) then type is defined and children_indices is undefined
  */
 struct SchemaElement {
   /** Data type for this field. e.g. int32 **/
   1: optional Type type;
 
+  /** repetition of the field. The root of the schema does not have a field_type.
+   * All other nodes must have one **/
   2: optional FieldRepetitionType field_type;
 
   /** Name of the field in the schema **/
   3: required string name;
 
   /** Nested fields.  Since thrift does not support nested fields,
-   * the nesting if flattened to a single list.  These indices
-   * are used to construct the nested relationship
+   * the nesting is flattened to a single list.  These indices
+   * are used to construct the nested relationship.
+   * each index refers to its position in the list.
    **/
   4: optional list<i32> children_indices;
 
