@@ -105,7 +105,7 @@ struct SchemaElement {
  */
 enum Encoding {
   /** Default encoding.
-   * BOOLEAN - 1 bit per value.
+   * BOOLEAN - 1 bit per value. 0 is false; 1 is true.
    * INT32 - 4 bytes per value.  Stored as little-endian.
    * INT64 - 8 bytes per value.  Stored as little-endian.
    * FLOAT - 4 bytes per value.  IEEE. Stored as little-endian.
