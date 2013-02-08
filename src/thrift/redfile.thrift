@@ -73,8 +73,9 @@ enum FieldRepetitionType {
 
 /**
  * Represents a element inside a schema definition.
- * if it is a group (inner node) then type is undefined and children_indices is defined
- * if it is a primitive type (leaf) then type is defined and children_indices is undefined
+ * if it is a group (inner node) then type is undefined and children_count is defined
+ * if it is a primitive type (leaf) then type is defined and children_count is undefined
+ * the nodes are listed in depth first traversal order.
  */
 struct SchemaElement {
   /** Data type for this field. e.g. int32 **/
@@ -92,7 +93,7 @@ struct SchemaElement {
    * are used to construct the nested relationship.
    * each index refers to its position in the list.
    **/
-  4: optional list<i32> children_indices;
+  4: optional i32 children_count;
 
   /** When the schema is the result of a conversion from another model
    * Used to record the original type to help with cross conversion
@@ -241,7 +242,9 @@ struct FileMetaData {
   /** Version of this file **/
   1: required i32 version
 
-  /** Schema for this file. **/
+  /** Schema for this file.
+   * Nodes are listed in depth-first traversal order.
+   * The first element is the root **/
   2: required list<SchemaElement> schema;
 
   /** Number of rows in this file **/
