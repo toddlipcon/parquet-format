@@ -100,6 +100,13 @@ The run length encoding is serialized as follows:
   - 0 as one bit
   - the value encoded in w bits
 
+To sum up:
+ - the first bit is 1 if we're storing a repeated value [1][value][count]
+ - it is 0 if we're storing the value without repetition count [0][value]
+ - 0 or 1 is stored as 1 bit
+ - value is stored as w bits
+ - count is stored as var int
+
 For repetition levels, the levels are bit packed as tightly as possible, 
 rounding up to the nearest byte.  For example, if the max repetition level was 3
 (2 bits) and the max definition level as 3 (2 bits), to encode 30 values, we would
