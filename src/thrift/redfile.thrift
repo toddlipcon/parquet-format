@@ -78,7 +78,8 @@ enum FieldRepetitionType {
  * the nodes are listed in depth first traversal order.
  */
 struct SchemaElement {
-  /** Data type for this field. e.g. int32 **/
+  /** Data type for this field. e.g. int32
+   * not set if the current element is a group node **/
   1: optional Type type;
 
   /** repetition of the field. The root of the schema does not have a field_type.
@@ -89,14 +90,14 @@ struct SchemaElement {
   3: required string name;
 
   /** Nested fields.  Since thrift does not support nested fields,
-   * the nesting is flattened to a single list.  These indices
-   * are used to construct the nested relationship.
-   * each index refers to its position in the list.
+   * the nesting is flattened to a single list by a depth frist traversal.
+   * The children count is used to construct the nested relationship.
+   * This field is not set when the element is a primitive type
    **/
   4: optional i32 children_count;
 
   /** When the schema is the result of a conversion from another model
-   * Used to record the original type to help with cross conversion
+   * Used to record the original type to help with cross conversion.
    **/
   5: optional ConvertedType converted_type;
 }
