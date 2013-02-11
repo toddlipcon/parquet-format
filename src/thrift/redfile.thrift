@@ -38,6 +38,21 @@ enum Type {
   BYTE_ARRAY = 6;
 }
 
+/**
+ * To help with conversion in between various type systems
+ * list of common types which can be encoded in the simpler model we use internally
+ */
+enum ConvertedType {
+  /** a BYTE_ARRAY actually contains UTF8 encoded chars */
+  UTF8 = 0;
+  /** a map is converted as an optional field containing a repeated key/value pair */
+  MAP = 1;
+  /** a key/value pair is converted into a group of two fields */
+  MAP_KEY_VALUE = 2;
+  /** a list is converted into an optional field containing a repeated field for its values */
+  LIST = 3;
+}
+
 /** 
  * Representation of Schemas
  */
@@ -57,22 +72,34 @@ enum FieldRepetitionType {
 }
 
 /**
- * Represents a element inside a schema definition.  
+ * Represents a element inside a schema definition.
+ * if it is a group (inner node) then type is undefined and num_children is defined
+ * if it is a primitive type (leaf) then type is defined and num_children is undefined
+ * the nodes are listed in depth first traversal order.
  */
 struct SchemaElement {
-  /** Data type for this field. e.g. int32 **/
+  /** Data type for this field. e.g. int32
+   * not set if the current element is a group node **/
   1: optional Type type;
 
+  /** repetition of the field. The root of the schema does not have a field_type.
+   * All other nodes must have one **/
   2: optional FieldRepetitionType field_type;
 
   /** Name of the field in the schema **/
   3: required string name;
 
-  /** For nested fields, this will be the index into the file metadata
-   * list (flattened) schema elements.  For root elements, this will be
-   * unset.
+  /** Nested fields.  Since thrift does not support nested fields,
+   * the nesting is flattened to a single list by a depth frist traversal.
+   * The children count is used to construct the nested relationship.
+   * This field is not set when the element is a primitive type
    **/
-  4: optional i32 parent_index;
+  4: optional i32 num_children;
+
+  /** When the schema is the result of a conversion from another model
+   * Used to record the original type to help with cross conversion.
+   **/
+  5: optional ConvertedType converted_type;
 }
 
 /**
@@ -80,7 +107,7 @@ struct SchemaElement {
  */
 enum Encoding {
   /** Default encoding.
-   * BOOLEAN - 1 bit per value.
+   * BOOLEAN - 1 bit per value. 0 is false; 1 is true.
    * INT32 - 4 bytes per value.  Stored as little-endian.
    * INT64 - 8 bytes per value.  Stored as little-endian.
    * FLOAT - 4 bytes per value.  IEEE. Stored as little-endian.
@@ -216,7 +243,9 @@ struct FileMetaData {
   /** Version of this file **/
   1: required i32 version
 
-  /** Schema for this file. **/
+  /** Schema for this file.
+   * Nodes are listed in depth-first traversal order.
+   * The first element is the root **/
   2: required list<SchemaElement> schema;
 
   /** Number of rows in this file **/
