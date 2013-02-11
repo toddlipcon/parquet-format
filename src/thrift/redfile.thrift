@@ -73,8 +73,8 @@ enum FieldRepetitionType {
 
 /**
  * Represents a element inside a schema definition.
- * if it is a group (inner node) then type is undefined and children_count is defined
- * if it is a primitive type (leaf) then type is defined and children_count is undefined
+ * if it is a group (inner node) then type is undefined and num_children is defined
+ * if it is a primitive type (leaf) then type is defined and num_children is undefined
  * the nodes are listed in depth first traversal order.
  */
 struct SchemaElement {
@@ -94,7 +94,7 @@ struct SchemaElement {
    * The children count is used to construct the nested relationship.
    * This field is not set when the element is a primitive type
    **/
-  4: optional i32 children_count;
+  4: optional i32 num_children;
 
   /** When the schema is the result of a conversion from another model
    * Used to record the original type to help with cross conversion.
