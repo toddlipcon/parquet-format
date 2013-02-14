@@ -2,7 +2,7 @@ Parquet [![Build Status](https://travis-ci.org/twitter/parquet-format.png?branch
 ======
 Parquet is a columnar storage format that supports nested data.
 
-Parquet metadata is encoded using Apache Trift.
+Parquet metadata is encoded using Apache Thrift.
 
 The Parquet-format project contains all Thrift definitions that are necessary to create readers
 and writers for Parquet files. 
