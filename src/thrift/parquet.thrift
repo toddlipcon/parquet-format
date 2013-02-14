@@ -17,13 +17,13 @@
  */
 
 /**
- * File format description for the redfile file format
+ * File format description for the parquet file format
  */
-namespace cpp redfile
-namespace java redfile
+namespace cpp parquet
+namespace java org.parquet
 
 /**
- * Types supported by redfile.  These types are intended to be for the storage
+ * Types supported by Parquet.  These types are intended to be for the storage
  * format, and in particular how they interact with different encodings.
  * For example INT16 is not included as a type since a good encoding of INT32
  * would handle this.
@@ -103,7 +103,7 @@ struct SchemaElement {
 }
 
 /**
- * Encodings supported by redfile.  Not all encodings are valid for all types.
+ * Encodings supported by Parquet.  Not all encodings are valid for all types.
  */
 enum Encoding {
   /** Default encoding.

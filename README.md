@@ -1,6 +1,11 @@
-redfile [![Build Status](https://travis-ci.org/twitter/redfile.png?branch=master)](redfile)
+Parquet [![Build Status](https://travis-ci.org/twitter/parquet-format.png?branch=master)](parquet)
 ======
-Redfile is a columnar storage format that supports nested data.  
+Parquet is a columnar storage format that supports nested data.
+
+Parquet metadata is encoded using Apache Trift.
+
+The Parquet-format project contains all Thrift definitions that are necessary to create readers
+and writers for Parquet files. 
 
 ## Glossary
   - Block (hdfs block): This means a block in hdfs and the meaning is 
@@ -80,7 +85,7 @@ readers and writers for the format.  The types are:
   - BYTE_ARRAY: arbitrarily long byte arrays.
 
 ## Nested Encoding
-To encode nested columns, redfile uses the dremel encoding with definition and 
+To encode nested columns, Parquet uses the dremel encoding with definition and 
 repetition levels.  Definition levels specify how many optional fields in the 
 path for the column are defined.  Repetition levels specify at what repeated field
 in the path has the value repeated.  The max definition and repetition levels can
