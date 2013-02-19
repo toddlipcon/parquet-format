@@ -1,6 +1,11 @@
-redfile [![Build Status](https://travis-ci.org/twitter/redfile.png?branch=master)](redfile)
+Parquet [![Build Status](https://travis-ci.org/twitter/parquet-format.png?branch=master)](parquet)
 ======
-Redfile is a columnar storage format that supports nested data.  
+Parquet is a columnar storage format that supports nested data.
+
+Parquet metadata is encoded using Apache Thrift.
+
+The Parquet-format project contains all Thrift definitions that are necessary to create readers
+and writers for Parquet files. 
 
 ## Glossary
   - Block (hdfs block): This means a block in hdfs and the meaning is 
@@ -80,7 +85,7 @@ readers and writers for the format.  The types are:
   - BYTE_ARRAY: arbitrarily long byte arrays.
 
 ## Nested Encoding
-To encode nested columns, redfile uses the dremel encoding with definition and 
+To encode nested columns, Parquet uses the dremel encoding with definition and 
 repetition levels.  Definition levels specify how many optional fields in the 
 path for the column are defined.  Repetition levels specify at what repeated field
 in the path has the value repeated.  The max definition and repetition levels can
@@ -89,7 +94,23 @@ maximum number of bits required to store the levels (levels are defined for all
 values in the column).  
 
 For the definition levels, the values are encoded using run length encoding.
-julien: can you add details here?
+The run length encoding is serialized as follows:
+ - let max be the maximum definition level (determined by the schema)
+ - let w be the width in bits required to encode a definition level value. w = ceil(log2(max + 1))
+ - If the value is repeated we store:
+  - 1 as one bit
+  - the value encoded in w bits
+  - the repetition count as an unsigned var int. (see ULEB128: http://en.wikipedia.org/wiki/Variable-length_quantity)
+ - If the value is not repeated (or not repeated enough so that the above scheme would be more compact)
+  - 0 as one bit
+  - the value encoded in w bits
+
+To sum up:
+ - the first bit is 1 if we're storing a repeated value [1][value][count]
+ - it is 0 if we're storing the value without repetition count [0][value]
+ - 0 or 1 is stored as 1 bit
+ - value is stored as w bits
+ - count is stored as var int
 
 For repetition levels, the levels are bit packed as tightly as possible, 
 rounding up to the nearest byte.  For example, if the max repetition level was 3
