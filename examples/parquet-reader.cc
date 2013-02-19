@@ -20,7 +20,7 @@
 #include <thrift/protocol/TDebugProtocol.h>
 #include <thrift/TApplicationException.h>
 #include <thrift/transport/TBufferTransports.h>
-#include "gen-cpp/redfile_types.h"
+#include "gen-cpp/parquet_types.h"
 
 // TCompactProtocol requires some #defines to work right.  
 // TODO: is there a better include to use?
@@ -34,14 +34,14 @@ DEFINE_bool(output_page_header, false, "If true, output page headers to stderr."
 DEFINE_bool(output_to_csv, false, "If true, output csv to stdout.  This can be very slow");
 
 using namespace boost;
-using namespace redfile;
+using namespace parquet;
 using namespace std;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
 using namespace apache::thrift::transport;
 
 // Some code is replicated to make this more stand-alone.
-const uint8_t REDFILE_VERSION_NUMBER[] = {'R', 'E', 'D', '1'};
+const uint8_t PARQUET_VERSION_NUMBER[] = {'R', 'E', 'D', '1'};
 
 int base_row_idx;
 vector<vector<string> > rows_csv;
@@ -150,7 +150,7 @@ void OutputDataPage<string>(uint8_t* definition_data, uint8_t* data, int num_val
   }
 }
 
-// Simple utility to read a redfile on local disk.  This utility validates the
+// Simple utility to read parquet files on local disk.  This utility validates the
 // file is correctly formed and can output values from each data page.  The
 // entire file is buffered in memory so this is not suitable for large files.
 int main(int argc, char** argv) {
@@ -180,18 +180,17 @@ int main(int argc, char** argv) {
 
   // Check file starts and ends with magic bytes
   assert(
-      memcmp(buffer, REDFILE_VERSION_NUMBER, sizeof(REDFILE_VERSION_NUMBER)) == 0);
-  assert(memcmp(buffer + file_len - sizeof(REDFILE_VERSION_NUMBER), 
-      REDFILE_VERSION_NUMBER, sizeof(REDFILE_VERSION_NUMBER)) == 0);
+      memcmp(buffer, PARQUET_VERSION_NUMBER, sizeof(PARQUET_VERSION_NUMBER)) == 0);
+  assert(memcmp(buffer + file_len - sizeof(PARQUET_VERSION_NUMBER), 
+      PARQUET_VERSION_NUMBER, sizeof(PARQUET_VERSION_NUMBER)) == 0);
 
   // Get metadata
-  uint8_t* metadata_offset_ptr = 
-      buffer + file_len - sizeof(REDFILE_VERSION_NUMBER) - sizeof(uint32_t);
-  uint32_t metadata_offset = *reinterpret_cast<uint32_t*>(metadata_offset_ptr);
-  cerr << "Metadata offset: " << metadata_offset << endl;
+  uint8_t* metadata_len_ptr = 
+      buffer + file_len - sizeof(PARQUET_VERSION_NUMBER) - sizeof(uint32_t);
+  uint32_t metadata_len = *reinterpret_cast<uint32_t*>(metadata_len_ptr);
+  cerr << "Metadata len: " << metadata_len << endl;
 
-  uint8_t* metadata = buffer + file_len - metadata_offset;
-  uint32_t metadata_len = metadata_offset - sizeof(REDFILE_VERSION_NUMBER) - sizeof(uint32_t);
+  uint8_t* metadata = metadata_len_ptr - metadata_len;
 
   FileMetaData file_metadata;
   bool status = DeserializeThriftMsg(metadata, &metadata_len, true, &file_metadata);
