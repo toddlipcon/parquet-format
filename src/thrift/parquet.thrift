@@ -20,7 +20,7 @@
  * File format description for the parquet file format
  */
 namespace cpp parquet
-namespace java org.parquet
+namespace java parquet.format
 
 /**
  * Types supported by Parquet.  These types are intended to be used in combination
@@ -141,6 +141,7 @@ enum PageType {
 
 /** Data page header **/
 struct DataPageHeader {
+  // Number of values, including NULLs, in this data page.
   1: required i32 num_values
 
   /** Encoding used for this data page **/
@@ -165,8 +166,8 @@ struct PageHeader {
    **/
   4: optional i32 crc
 
-  5: optional DataPageHeader data_page;
-  6: optional IndexPageHeader index_page;
+  5: optional DataPageHeader data_page_header;
+  6: optional IndexPageHeader index_page_header;
 }
 
 /** 
