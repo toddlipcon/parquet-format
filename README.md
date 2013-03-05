@@ -1,5 +1,8 @@
 Parquet [![Build Status](https://travis-ci.org/twitter/parquet-format.png?branch=master)](parquet)
 ======
+
+# Parquet overview
+
 Parquet is a columnar storage format that supports nested data.
 
 Parquet metadata is encoded using Apache Thrift.
@@ -172,7 +175,25 @@ There are many places in the format for compatible extensions:
 - Encodings: Encodings are specified by enum and more can be added in the future.  
 - Page types: Additional page types can be added and safely skipped.
 
-## License
+# Building
+
+This repository contains a maven pom which will generate the Thrift structures depended
+upon by the parquet-mr and other Java-based Parquet implementations.
+
+## Build requirements
+
+- Maven 3.0
+- Thrift 0.7.0
+- maven-thrift-plugin 0.1.10 (at this time, not available in maven central -- please install
+locally from https://github.com/dtrott/maven-thrift-plugin
+
+The `thrift` binary must be in your `$PATH`.
+
+## Building
+
+   $ mvn install
+
+# License
 Copyright 2013 Twitter, Cloudera and other contributors.
 
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
